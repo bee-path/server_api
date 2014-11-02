@@ -1,0 +1,231 @@
+########## Very far future ###########
+1. Scalable data to NR-DB (mongo)
+2. Web with results browsable by user
+3. gUnicorn in production server
+
+######### To do now #########
+-> Write get_results function (length)
+-> Write stop_all view (not working)
+
+
+8. Api_key --> serve key if get // not used for the moment
+9. Deploy production server in beepath --> sudo python manage.py runserver 0.0.0.0:80
+
+######### Tests #########
+1. populate_database
+2. create user (post)
+3. get user (get)
+4. update user (put)
+5. create session (post)
+6. end session (put)
+7. update gps (post)
+8. target_found (no repeated, post -> ok), (repeated, post --> raise error)
+9. get_results -> done
+
+########### State of affairs ##########
+All working.
+
+Just needs deployment, stop all, readme + http responses
+########################################
+
+Framework: Django
+Packages: MySQL capabilities (mongo not considered...)
+Autentification protocol + API: We shall use Tastypie http://tastypieapi.org/
+
+Check: http://broadcast.oreilly.com/2009/12/principles-for-standardized-rest-authentication.html
+Also: http://stackoverflow.com/questions/308605/adding-rest-to-django
+Also: http://pydanny.com/choosing-an-api-framework-for-django.html ## example code to deliver JSON style docs!
+
+
+========= Security =============
+ApiKey --> need to write api key creation  + apikey retrieval
+To do:
+Security checks:
+	Rand Number for app origin upon new user creation -> implemented basic auth, we forget about this.
+	Limited batch inserts for db inserts
+	User_id number for querys
+
+======== Transactions ===========
+Interacting with curl commands: http://django-tastypie.readthedocs.org/en/latest/interacting.html
+Data interactiong using JSON
+
+======== Transactions ===========
+Implement JSON --> By default only returns JSON. done --> need to add format=JSON to http headers
+Implement login (GET + PUT if not exists) :
+	Implement new user --> done (serves also ApiKey)
+	Implement user_exists
+Implement start_session (GET + POST if not active + UPDATE) --> raise error if active
+Implement end_session (UPDATE) --> raise error if not active
+Implement Update_GPS (GET + POST):
+	Implement security checks on gps-inserts --> raise error if not active
+Implement Control_point (GET + POST + UPDATE if finished) --> raise error if not active, raise warning if completed
+Implement Get_results (GET + POST + UPDATE + GET) --> raise error if active
+Implement security (apikey) authentication + custom autorization
+Implement authorization: Users have get capabilities records in the ones only identified by their ID, update capabilities only on the model User_details model (for activation) and post capabilities in User_results and GPS_updates.
+
+
+Implement Resources:
+	Targets -> done
+	Found Targets -> done
+	GPS_updates -> done
+	User_details -> done
+	GPS_Session -> done
+
+Querying works fine, no need for dehydrate. No need to define POST methods!
+#######################
+
+
+Missing Models: --> all done!
+	GPS_Session -> Attributes
+				User (string)
+			Status_active (bool)
+			Session ID (int)
+			Status interrupted (bool)
+			targets_n (int)
+			targets_list --> list
+			total Time --> int
+			total length --> int
+			Start --> dict
+				lat
+				lon
+				Time in properties (Date-time)
+			Stop --> dict
+				Position --> geoJSON
+				Time in properties (Date-time)
+			n_updates (int)
+
+	GPS_Location
+	User_phone -> Atts
+			User (string)
+			Email (string)
+			Num. attributes (Num)
+			Attributes (List)
+			N_sessions (int)
+			Active (int -> bool)
+			Options: update rate
+			Number of sessions
+			 
+	Target
+		target_id (int)
+		Position --> geoJSON
+
+
+
+Missing methods:
+
+1. Login
+	A) True: Autentificate user
+	B) New user:
+		Generate user / password
+		Fill in collection "users" with information from app
+		Fill in collection "phone capabilities" with phone info
+		Generate pair api/key --> not implemented
+		
+2. Start session:
+	a) Check users.status_active:
+		If True:
+			Raise error: User already active
+		If False:
+			a) Users.number_of_sessions+1, users.status_active =1
+			b) users.sessions:
+				New Session ID
+				Status_active:1
+				Total length:0
+				Total time:0
+				Status_interrupted=Status_completed=0
+3. End session
+	a) Check users.status_Active: If false, raise error, if true, proceed
+	users.status_active=0.
+	users.sessions:
+		status_active=0
+		total_time: Sumar temps
+		total_length: Sumar lengths
+		n_updates: Comptar updates
+		check status_completed:
+			Si status_completed=Total targets --> interrupted false
+			else: --> interrupted true
+4. Update_GPS
+	a) Check user.status_Active: True,if false, raise error
+	Check max_number of fields to override injection attacks according to users.phone_capabilities.number of capabilities
+	IF accepted: Batch insert into session_updates
+		
+5. Control_point
+	a) Check user.status_active: true
+	b) Check geo_location_code and position: if true, proceed, else raise error
+	c) users.sessions.status_completed +=1, add target to list
+6. Get_results
+	a)Check user.status_active: True
+		If true: Close_session, reference: Session number, proceed
+		If false and not given a reference: Raise error
+		If false and give reference: proceed
+	b) REturn whatever needed in json format using reference, including overall stats (using querys to database) over other users.
+
+
+
+Database structure:
+Database "RAW data"
+	a) Users:
+		Information
+		Phone capabilities and options:
+			List of capabilities
+			Number of capabilities
+			Update rate
+		Sessions:
+			Session ID
+			Status_active
+			Status interrupted
+			Status_completed (found targets)
+			targets_found --> list
+			Total Time
+			Total length
+			Start
+				Position --> geoJSON
+				Time
+			Stop
+				Position --> geoJSON
+				Time
+			n_updates
+		Number of sessions
+		Status_active		
+	b) Session_updates:
+		user_id
+		session_id
+		position --> geoJSON
+		time
+Database "Simulations"
+	a) Simus:
+		Name
+		Parametters
+			velocity and others
+		Results
+			Average total time
+			Average total length
+			Failure rate
+		Single_session
+			N_updates
+			total time
+			total length
+	b) Simus_single_trace:
+		trace_id
+		session_id
+		position --> geoJSON
+		time
+
+
+#### Notes ####
+Al final no geojson.. fem lat lon i ja ho "serialitzarem"
+Si l'usuari no ha trobat tots els punts, aixÃ² ho gestiona la app
+Si l'usuari ha trobat tots els pontones, la app ha de cridar a close_session, no el server.
+Les operacions updating i querying nomes es poden fer sobre el mateix user (usar hack de bloqueig)
+
+
+## apunts
+Al fer el syncdb m'ha sortit aquest error:
+
+Failed to install index for tastypie.ApiKey model: (1071, 'Specified key was too long; max key length is 767 bytes')
+
+Aquí dóna raons: https://github.com/toastdriven/django-tastypie/issues/757. Provaré d'utilitzar PostgreSQL. M'ha deixat instal.lar
+
+### headers per a request amb API Key
+Authorization: ApiKey josep:be6ed78160592cf4b1a37992b292c65d04c53e48
+Content-Type: application/json

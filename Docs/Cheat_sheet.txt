@@ -1,0 +1,120 @@
+########### Cheat sheet #############
+
+In the following we assume prior to the http expressions you add the server direction (for instance http://localhost:8000/)
+
+1. Create a user:
+
+    >> $ curl  --dump-header --H "Content-Type: application/json" --data '{"username":"mar","password":"1234","age":"2","alone":"0","gender":"P","phone_os":"pepo","future_emails":"0","email":mar@mar.com""}' -X POST http://161.116.80.73/api/v1/user_log/
+
+    Returns:
+
+    >> 
+    HTTP/1.0 201 CREATED
+    Date: Thu, 06 Jun 2013 16:09:18 GMT
+    Server: WSGIServer/0.1 Python/2.7.3
+    Vary: Accept
+    Content-Type: text/html; charset=utf-8
+    Location: http://161.116.80.73/api/v1/user_log/4/
+
+If user is already  in database, fails
+If email already in database, fails
+
+    >>
+    HTTP/1.0 400 BAD REQUEST
+    Date: Thu, 06 Jun 2013 16:37:34 GMT
+    Server: WSGIServer/0.1 Python/2.7.3
+    Content-Type: application/json
+
+    {"message": "This email already has an associated account", "response": 400}physcomp2@physcomp2:~$ 
+
+
+If identified as user, tries another user, fails. I. e.,
+
+    >>$ curl  --dump-header --H "Content-Type: application/json" --data '{"username":"mar","password":"1234","age":"2","alone":"0","gender":"P","phone_os":"pepo","future_emails":"0","email":mar@mar.com""}' -u ula:1234 -X POST http://161.116.80.73/api/v1/user_log/
+
+(Note the -u ula:1234 towards the end of the line)
+
+
+
+2. See user details:
+
+    >> curl  --dump-header - -H "Content-Type: application/json" -u mar:1234   -X GET http://161.116.80.73/api/v1/user_details/
+    
+    Returns a JSON file with all user details
+    
+    HTTP/1.0 200 OK
+Date: Thu, 06 Jun 2013 16:43:19 GMT
+Server: WSGIServer/0.1 Python/2.7.3
+Vary: Accept
+Content-Type: application/json
+Cache-Control: no-cache
+
+{"meta": {"limit": 20, "next": null, "offset": 0, "previous": null, "total_count": 9}, "objects": [{"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 1, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/2/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 2, "is_active": true, "phone_os": "pepo", "sessions_n": 1, "total_length": 0.0, "total_time": 986132, "update_rate": 15, "updates_n": 7, "user": "/api/v1/user/3/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 3, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/4/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 4, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/5/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 5, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/6/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 6, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/7/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 7, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/8/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 8, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/9/"}, {"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 9, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/10/"}]}
+
+    We can also filter some fields, 
+    >> curl  --dump-header - -H "Content-Type: application/json" -u mar:1234   -X GET http://161.116.80.73/api/v1/user_details/?user__username=mar
+
+    Returns
+    
+HTTP/1.0 200 OK
+Date: Thu, 06 Jun 2013 16:45:46 GMT
+Server: WSGIServer/0.1 Python/2.7.3
+Vary: Accept
+Content-Type: application/json
+Cache-Control: no-cache
+
+{"meta": {"limit": 20, "next": null, "offset": 0, "previous": null, "total_count": 1}, "objects": [{"age": 2, "alone": true, "future_emails": true, "gender": "2", "id": 3, "is_active": false, "phone_os": "pepo", "sessions_n": 0, "total_length": 0.0, "total_time": 0, "update_rate": 15, "updates_n": 0, "user": "/api/v1/user/4/"}]}
+
+    Additional fiels are allowed for filtering, see README to ge stats. For instnacE: is_active, total_time, total_lenght....
+2. b. Get user list: simply a get command (useful for getting a full user list and do rankings)
+    >> curl  --dump-header - -H "Content-Type: application/json" -u mar:1234   -X GET http://161.116.80.73/api/v1/user/
+
+    
+3. Create user session: Issue a POST command, properly identified (in this case, as john)
+
+curl  --dump-header - -H "Content-Type: application/json" -u john:1234 --data '{}'  -X POST http://161.116.80.73/api/v1/session/
+
+Raises a 400 error (bar request) if user is already active (has other sessions).
+
+
+!!!!!!!1 Important : Returns a json array with several data, with a key field that the phone needs to store: "id" (the session_id) -_> See next section !!!!!!!!!!!!
+4. Pause / REstart / End session:
+
+Restart : curl  --dump-header - -H "Content-Type: application/json" -u john:1234 --data '{"is_active":1}'  -X PATCH http://161.116.80.73/api/v1/session/session_id/
+    Raises 400 error if user is already active.
+Pause : curl  --dump-header - -H "Content-Type: application/json" -u john:1234 --data '{"is_interrupted":1}'  -X PATCH http://161.116.80.73/api/v1/session/session_id/
+    Raises 400 error if user is not active
+End : curl  --dump-header - -H "Content-Type: application/json" -u john:1234 --data '{"is_finished":1}'  -X PATCH http://161.116.80.73/api/v1/session/session_id/
+    Raises 400 error if user is not active. Blocks further PATCHS in this session.
+    
+    Important! When a session is ended, it returns a JSON with the results of the session, specially important are the usual fields (described in the readme) and another additional field in the JSON, called "results" which is a dictionary and has structure : { key: value, key2:value2 }  and which each key indicates a animal and each value the time spent by them in the foraging process.
+    
+5. Declare a target has been found: POST command
+    curl  --dump-header - -H "Content-Type: application/json" --data '{"timestamp":1323213, "target":1}' -u john:1234  -X POST  http://161.116.80.73/api/v1/found_target/
+    
+    Raises 400 error if target has already been declared in the session, or if no session is active.
+    Raises a 500 error if not all fields are given (timestamp, id).
+
+6. Browse target list:
+    curl  --dump-header - -H "Content-Type: application/json" -u mar:1234   -X GET http://161.116.80.73/api/v1/target/
+    
+    Returns a list of all targets, needs identification.
+
+
+7. Upload GPS data and sensor data: POST / PATCH command
+    If single update:POST
+    curl  -u john:1234 --dump-header - -H "Content-Type: application/json" --data '{"random_filed":3,"lon":11,"lat":2,"alt":3,"timestamp":1370515889}' -X POST http://161.116.80.73/api/v1/update/
+    
+    Bulk insert: PATCH
+    curl  -u john:1234 --dump-header - -H "Content-Type: application/json" --data '{"objects":[{"random_filed":3,"lon":11,"lat":2,"alt":3,"timestamp":1370515889},{"lon":11,"lat":23,"alt":3,"timestamp":1371515889}],"deleted_objects":[]}' -X PATCH http://161.116.80.73/api/v1/update/
+    
+    raises Error if any of the required fields is missing, or if session is closed.
+
+8. Browse user tracks of a given session (or all sessions):
+    curl  --dump-header - -H "Conte -u john:1234   -X GET http://161.116.80.73/api/v1/update/?session=1
+    (If all sessions: just delete the ?session=1)
+    Only gets own user data.
+    
+9 . Brose sessoin details:
+    curl  --dump-header - -H "Content-Type: application/json" -u john:1234   -X GET http://161.116.80.73/api/v1/session/
+    Only gets results for current user.

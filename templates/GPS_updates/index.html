@@ -1,0 +1,112 @@
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js" type="text/javascript"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+var server_url = "";
+var randomUser = "";
+var email = "";
+var random_number = Math.floor(Math.random()*1000);
+randomUser = "user_"+ random_number.toString();
+email = randomUser+"@mail.com";
+	
+function newUser(){
+	var random_number = Math.floor(Math.random()*1000);
+	randomUser = "user_"+ random_number.toString();
+	email = randomUser+"@mail.com";
+	var obj = [{"username":randomUser,"password":"1234","age":"2","alone":"0","gender":"P","phone_os":"android","future_emails":"0","email":email}];
+	$.ajax({
+    	type: "POST",
+    	url: server_url+"/api/v1/user/",
+    	contentType: "application/json",
+    	data: {type: "stream", q: obj},
+    	success: function(response){
+        		$("#receive_newUser").html(JSON.stringify(response));
+  		}
+    });
+    $("#send_newUser").html(JSON.stringify(obj));
+}
+
+function loginUser(){
+	var obj = [{"username": randomUser,"password":"1234" }];
+	$.ajax({
+    	type: "POST",
+    	url: server_url+"/api/v1/user_login/",
+    	contentType: "application/json",
+    	data: {type: "stream", q: obj},
+    	success: function(response){
+        	$("#receive_loginUser").html(JSON.stringify(response));
+  		}
+    });
+    $("#send_loginUser").html(JSON.stringify(obj));
+}
+
+function emailsExist(){
+	var obj = [{"email":email}];
+	$.ajax({
+    	type: "POST",
+    	url: server_url+"/api/v1/user/",
+    	contentType: "application/json",
+    	data: {type: "stream", q: obj},
+    	success: function(response){
+        	$("#receive_emailsExist").html(JSON.stringify(response));
+  		}
+    });
+    $("#send_emailsExist").html(JSON.stringify(obj));
+}
+
+function sendNewSession(){
+	var obj = [{"email":email}];
+	$.ajax({
+    	type: "POST",
+    	url: server_url+"/api/v1/user/",
+    	contentType: "application/json",
+    	data: {type: "stream", q: obj},
+    	success: function(response){
+        		$("#receive_sendNewSession").html(JSON.stringify(response));
+  		}
+    });
+    $("#send_sendNewSession").html(JSON.stringify(obj));
+}
+
+function sendNewGPSPosition(){
+	var obj = [{"*lat": 1.1,"*lon": 1.1,"*timestamp": 123123123123,"*session":1,"alt": 0.1,"*acc": 1.1,"*provider": "as","pow_bat":0}];
+	$.ajax({
+    	type: "POST",
+    	url: server_url+"/api/v1/user/",
+    	contentType: "application/json",
+    	data: {type: "stream", q: obj},
+    	success: function(response){
+        	$("#receive_sendNewGPSPosition").html(JSON.stringify(response));
+  		}
+    });
+    $("#send_sendNewGPSPosition").html(JSON.stringify(obj));
+}
+
+</script>
+</head>
+<body>
+List tests:<br>
+<a href="javascript:newUser()">Send new user</a><br>
+<p id="send_newUser"></p>
+<p id="received_newUser"></p>
+<a href="javascript:loginUser()">Send login</a><br>
+<p id="send_loginUser"></p>
+<p id="received_loginUser"></p>
+<a href="javascript:sendNewGPSPosition()">Send gps</a><br>
+<p id="send_sendNewGPSPosition"></p>
+<p id="received_sendNewGPSPosition"></p>
+<a href="javascript:sendNewSession()">New session</a><br>
+<p id="send_sendNewSession"></p>
+<p id="received_sendNewSession"></p>
+<a href="javascript:emailsExist()">Check email</a><br>
+<p id="send_emailsExist"></p>
+<p id="received_emailsExist"></p>
+<br>
+-----<br>
+test load image static:
+{% load staticfiles %}
+<img src="{% static "logo.png" %}" alt="My image"/>
+</body>
+<html>
