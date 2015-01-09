@@ -31,7 +31,6 @@ install python bindings for the chosen database (recommended py-mysql).
 ```
     $ python manage.py syncdb 
 ```
-
   6. You are ready to fire up the server (runs by default on the port localhost:8000): 
 ```
     $ python manage.py runserver
@@ -80,13 +79,13 @@ Accessible by all identified users (without sensitive fields). Is created at the
 
 Filtering allowed:
            
-'user': ALL_WITH_RELATIONS,
-   'is_active': ALL,
-   'total_time': ALL,
-   'total_length': ALL,
-   'alone' : ALL,
-   'gender' : ALL,
-   'age': ALL
+- 'user': ALL_WITH_RELATIONS,
+   - 'is_active': ALL,
+   - 'total_time': ALL,
+   - 'total_length': ALL,
+   - 'alone' : ALL,
+   - 'gender' : ALL,
+   - 'age': ALL
 
 ##### Target:
 
