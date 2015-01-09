@@ -31,7 +31,9 @@ install python bindings for the chosen database (recommended py-mysql).
 ```
     $ python manage.py syncdb 
 ```
-  6. You are ready to fire up the server (runs by default on the port localhost:8000): 
+
+You are ready to fire up the server (runs by default on the port localhost:8000): 
+
 ```
     $ python manage.py runserver
 ```
