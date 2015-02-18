@@ -3,7 +3,7 @@
 import MySQLdb as mdb
 # Create beepath_server database
 usr='root'
-passw='networks'
+passw='' # your pass
 server='localhost'
 db=mdb.connect(server,usr,passw)
 db_name="beepath_server"
