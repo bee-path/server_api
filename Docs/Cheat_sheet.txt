@@ -4,7 +4,7 @@ In the following we assume prior to the http expressions you add the server dire
 
 1. Create a user:
 
-    >> $ curl  --dump-header --H "Content-Type: application/json" --data '{"username":"mar","password":"1234","age":"2","alone":"0","gender":"P","phone_os":"pepo","future_emails":"0","email":mar@mar.com""}' -X POST http://161.116.80.73/api/v1/user_log/
+    >> $ curl  --dump-header --H "Content-Type: application/json" --data '{"username":"mar","password":"1234","age":"2","alone":"0","gender":"P","phone_os":"pepo","future_emails":"0","email":mar@mar.com""}' -X POST http://161.116.80.73/api/v1/login/
 
     Returns:
 
@@ -14,7 +14,7 @@ In the following we assume prior to the http expressions you add the server dire
     Server: WSGIServer/0.1 Python/2.7.3
     Vary: Accept
     Content-Type: text/html; charset=utf-8
-    Location: http://161.116.80.73/api/v1/user_log/4/
+    Location: http://161.116.80.73/api/v1/login/4/
 
 If user is already  in database, fails
 If email already in database, fails
@@ -30,7 +30,7 @@ If email already in database, fails
 
 If identified as user, tries another user, fails. I. e.,
 
-    >>$ curl  --dump-header --H "Content-Type: application/json" --data '{"username":"mar","password":"1234","age":"2","alone":"0","gender":"P","phone_os":"pepo","future_emails":"0","email":mar@mar.com""}' -u ula:1234 -X POST http://161.116.80.73/api/v1/user_log/
+    >>$ curl  --dump-header --H "Content-Type: application/json" --data '{"username":"mar","password":"1234","age":"2","alone":"0","gender":"P","phone_os":"pepo","future_emails":"0","email":mar@mar.com""}' -u ula:1234 -X POST http://161.116.80.73/api/v1/login/
 
 (Note the -u ula:1234 towards the end of the line)
 
